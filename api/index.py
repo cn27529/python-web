@@ -1,19 +1,32 @@
-from flask import Flask
+import datetime
+from flask import Flask, render_template, Response
+import os.path
 
 app = Flask(__name__)
 
-# 函式的裝飾器 (Decorator)：函釋為基礎提供的附加功能
-@app.route("/") 
-def home():
-    return "Hello Flask"
+def root_dir():  # pragma: no cover
+    return os.path.abspath(os.path.dirname(__file__))
 
-@app.route("/aaa")
-def test():
-    return "Hello route is aaa"
+def get_file(filename):  # pragma: no cover
+    try:
+        src = os.path.join(root_dir(), filename)
+        # Figure out how flask returns static files
+        # Tried:
+        # - render_template
+        # - send_file
+        # This should not be so non-obvious
+        return open(src).read()
+    except IOError as exc:
+        return str(exc)
 
-@app.route("/train")
-def test():
-    return "train"
-    
-if __name__ == "__main__":
-    app.run()
+
+@app.route('/')
+def index():  # pragma: no cover
+    content = get_file('home.html')
+    return Response(content, mimetype="text/html")
+
+@app.route('/about')
+def metrics():  # pragma: no cover
+    content = get_file('about.html')
+    return Response(content, mimetype="text/html")
+
